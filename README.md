@@ -1,4 +1,4 @@
-# CPSC 449 Midterm Project
+# CPSC 449-02 Midterm Project
 Team Members:
 * Kaylee Bliaya
 * Alan Blandon
