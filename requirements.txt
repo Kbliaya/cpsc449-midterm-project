@@ -1,0 +1,4 @@
+# Necessary Packages:
+# flask
+# pymysql
+# flask_cors
