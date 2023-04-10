@@ -1,23 +1,20 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 import pymysql
 from flask_cors import CORS
-
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
+cors = CORS(app, resources={r'/*': {'origins': '*'}})
 
 conn = pymysql.connect(
     host='localhost',
     user='root',
-    password = "1234567890",
-    db='449MidtermProject_db',
+    password = 'insert_password',
+    db='db_name',
     cursorclass=pymysql.cursors.DictCursor
 )
 cur = conn.cursor()
-
-@app.route("/")
-def home():
-    return "Hello"
 
 @app.errorhandler(400)
 def bad_request(e):
@@ -35,5 +32,24 @@ def page_not_found(e):
 def internal_server_error(e):
     return jsonify(error=str(e)), 500
 
-if __name__ == "__main__":
-    app.run(host ="localhost", port = int("5000"))
+@app.route('/')
+def home():
+    return "Hello"
+
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
+app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+app.config['UPLOAD_PATH'] = 'uploads'
+
+@app.route('/', methods=['POST'])
+def upload_file():
+    uploaded_file = request.files['file']
+    filename = secure_filename(uploaded_file.filename)
+    if filename != "":
+        file_ext = os.path.splitext(filename)[1]
+        if file_ext not in app.config['UPLOAD_EXTENSIONS']:
+            abort(400)
+        uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
+        return "File Successfully Uploaded!"
+
+if __name__ == '__main__':
+    app.run(host ='localhost', port = int('5000'))
