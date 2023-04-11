@@ -15,8 +15,8 @@ app.config['SECRET_KEY'] = 'secretKey'
 conn = pymysql.connect(
     host='localhost',
     user='root',
-    password = '1234567890',
-    db='449midtermproject_db',
+    password = 'insert_password',
+    db='insert_dn_name',
     cursorclass=pymysql.cursors.DictCursor
 )
 cur = conn.cursor()
