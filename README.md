@@ -54,3 +54,6 @@ CREATE TABLE `users` (
         * select file from the dropdown in the Key column
         * key = file
         * value = file to be uploaded
+
+## POSTMAN Endpoints
+![CPSC449 - Midterm Project Endpoints](https://user-images.githubusercontent.com/54484110/231060939-678daa98-6141-4fcd-9267-7fac70f2a967.png)
