@@ -16,12 +16,13 @@ CREATE TABLE `users` (
 ```
 
 2. Create a virtual environment and install the following packages:
-    * flask
-    * pymysql
-    * flask_cors
-    * werkzeug.utils
-    * os
-    * re
+    * cryptography==40.0.1
+    * Flask==2.2.3
+    * Flask-Cors==3.0.10
+    * mysqlclient==2.1.1
+    * PyJWT==2.6.0
+    * PyMySQL==1.0.3
+    * Werkzeug==2.2.3
 3. Run the flask application with the command "flask run"
     * If you're using windows use the command "python -m flask run"
 
