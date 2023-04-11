@@ -2,21 +2,21 @@ from flask import Flask, request, jsonify, abort, session
 import pymysql
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-import os
-import re
+import os, re, jwt, datetime
+from functools import wraps
 
 # Flask application set up
 app = Flask(__name__)
 cors = CORS(app, resources={r'/*': {'origins': '*'}})
 
-app.secret_key = 'happykey'
+app.config['SECRET_KEY'] = 'secretKey'
 
 # connect to the database
 conn = pymysql.connect(
     host='localhost',
     user='root',
-    password = 'insert_password',
-    db='insert_db_name',
+    password = '1234567890',
+    db='449midtermproject_db',
     cursorclass=pymysql.cursors.DictCursor
 )
 cur = conn.cursor()
@@ -46,6 +46,31 @@ def internal_server_error(e):
 def home():
     return "Hello"
 
+def check_authorization(f):
+     @wraps(f)
+     def decorated(*args, **kwargs):
+        token = request.args.get('token')
+
+        if not token:
+             return "You need a token to access this route."
+        
+        try:
+             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        except:
+             return "The given token is invalid. You are not authorized to access this route"
+
+        return f(*args, **kwargs)
+     return decorated
+
+@app.route('/public_route')
+def public_route():
+      return "You are in the Public Route! You can now start uploading files!"
+
+@app.route('/protected_route')
+@check_authorization
+def protected_route():
+     return "You are in the Protected Route!"
+
 # route and function to register an account
 @app.route('/register', methods =['GET', 'POST'])
 def register():
@@ -72,20 +97,25 @@ def register():
 # route and function to login to an account
 @app.route('/login', methods =['GET', 'POST'])
 def login():
-	if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
-		username = request.form['username']
-		password = request.form['password']
-		cur.execute('SELECT * FROM users WHERE username = % s AND password = % s', (username, password))
-		conn.commit()
-		user = cur.fetchone()
-		
-		if user:
-			session['loggedin'] = True
-			session['id'] = user['id']
-			session['username'] = user['username']
-			return f'{username} Successfully Logged in!'
-		else:
-			return 'Incorrect username / password!'
+     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+        username = request.form['username']
+        password = request.form['password']
+        cur.execute('SELECT * FROM users WHERE username = % s AND password = % s', (username, password))
+        conn.commit()
+        user = cur.fetchone()
+
+        if user:
+            session['loggedin'] = True
+            session['id'] = user['id']
+            session['username'] = user['username']
+            session['password'] = user['password']
+
+            if session['username'] == 'admin' and session['password'] == 'adminPassword':
+                token = jwt.encode({'username' : session['username'], 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}, app.config['SECRET_KEY'])
+                return f'{username} Successfully Logged in!\ntoken: {token}'
+            return f'{username} Successfully Logged in!'
+        else:
+            return 'Incorrect username / password!'
 
 # file upload configurations
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
@@ -95,14 +125,17 @@ app.config['UPLOAD_PATH'] = 'uploads'
 # route and function to upload files
 @app.route('/upload_file', methods=['POST'])
 def upload_file():
-    uploaded_file = request.files['file']
-    filename = secure_filename(uploaded_file.filename)
-    if filename != "":
-        file_ext = os.path.splitext(filename)[1]
-        if file_ext not in app.config['UPLOAD_EXTENSIONS']:
-            abort(400)
-        uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
-        return "File Successfully Uploaded!"
+    if 'loggedin' in session:
+        uploaded_file = request.files['file']
+        filename = secure_filename(uploaded_file.filename)
+        if filename != "":
+            file_ext = os.path.splitext(filename)[1]
+            if file_ext not in app.config['UPLOAD_EXTENSIONS']:
+                abort(400)
+            uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
+            return "File Successfully Uploaded!"
+    else:
+        return "Please log in!"
 
 if __name__ == '__main__':
     app.run(host ='localhost', port = int('5000'))
