@@ -1,7 +1,8 @@
 # Necessary Packages:
 
-# flask (Flask, request, jsonify, abort)
+# flask (Flask, request, jsonify, abort, session)
 # pymysql
 # flask_cors (CORS)
 # werkzeug.utils (secure_filename)
 # os
+# re
