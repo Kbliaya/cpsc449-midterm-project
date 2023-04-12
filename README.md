@@ -20,8 +20,8 @@ CREATE TABLE `users` (
 conn = pymysql.connect(
     host='localhost',
     user='root',
-    **password = 'insert_password',**
-    **db='insert_dn_name',**
+    password = 'insert_password',   <------- replace with database password
+    db='insert_dn_name',   <------- replace with database name
     cursorclass=pymysql.cursors.DictCursor
 )
 ```
