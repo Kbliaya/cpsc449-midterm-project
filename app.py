@@ -16,7 +16,7 @@ conn = pymysql.connect(
     host='localhost',
     user='root',
     password = 'insert_password',
-    db='insert_dn_name',
+    db='insert_db_name',
     cursorclass=pymysql.cursors.DictCursor
 )
 cur = conn.cursor()
@@ -110,10 +110,8 @@ def login():
             session['username'] = user['username']
             session['password'] = user['password']
 
-            if session['username'] == 'admin' and session['password'] == 'adminPassword':
-                token = jwt.encode({'username' : session['username'], 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}, app.config['SECRET_KEY'])
-                return f'{username} Successfully Logged in!\ntoken: {token}'
-            return f'{username} Successfully Logged in!'
+            token = jwt.encode({'username' : session['username'], 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}, app.config['SECRET_KEY'])
+            return f'{username} Successfully Logged in!\ntoken: {token}'
         else:
             return 'Incorrect username / password!'
 
