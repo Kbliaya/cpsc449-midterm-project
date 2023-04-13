@@ -21,7 +21,7 @@ conn = pymysql.connect(
     host='localhost',
     user='root',
     password = 'insert_password',   <------- replace with database password
-    db='insert_dn_name',   <------- replace with database name
+    db='insert_db_name',   <------- replace with database name
     cursorclass=pymysql.cursors.DictCursor
 )
 ```
